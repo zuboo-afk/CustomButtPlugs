@@ -54,50 +54,12 @@ void SubPlug::OnParentWindowResize(int width, int height)
 #if IPLUG_DSP
 void SubPlug::ProcessBlock(sample** inputs, sample** outputs, int nFrames)
 { 
-  const double SR = GetSampleRate();
+  const int nChans = NOutChansConnected();
+  const double gain = GetParam(kParamGain)->Value() / 100.;
   
   for (int s = 0; s < nFrames; s++) {
-    // Update parameters
-    mParams.squareTerm = GetParam(kSquareTerm)->Value();
-    mParams.cubicTerm = GetParam(kCubicTerm)->Value();
-    mParams.sqrtTerm = GetParam(kSqrtTerm)->Value();
-    mParams.cbrtTerm = GetParam(kCbrtTerm)->Value();
-    mParams.conjugateTerm = GetParam(kConjugateTerm)->Value();
-    mParams.mix = GetParam(kMix)->Value();
-    mParams.inputGain = GetParam(kInputGain)->Value();
-    mParams.outputGain = GetParam(kOutputGain)->Value();
-    
-    for (int c = 0; c < NOutChansConnected(); c++) {
-      double x = inputs[c][s] * mParams.inputGain;
-      double y = 0.0;  // imaginary part (for mono, use 0)
-      
-      // For stereo, you could use different strategies:
-      // Option 1: Process channels independently (simpler)
-      // Option 2: Link channels as complex (as in full version above)
-      
-      // Independent channel processing (safer for real-time)
-      double x2 = x * x;
-      double x3 = x2 * x;
-      
-      // Apply nonlinearities (with safety checks)
-      double sqrt_x = (x >= 0) ? std::sqrt(x) : -std::sqrt(-x);
-      double cbrt_x = (x >= 0) ? std::cbrt(x) : -std::cbrt(-x);
-      
-      // Conjugate term for real signal is just the signal itself
-      double conj_term = x;  // conjugate of real x is x
-      
-      // MZ polynomial result
-      double result = 
-        mParams.squareTerm * x2 +
-        mParams.cubicTerm * x3 +
-        mParams.sqrtTerm * sqrt_x +
-        mParams.cbrtTerm * cbrt_x +
-        mParams.conjugateTerm * conj_term;
-      
-      // Apply mix and gain
-      double wet = result * mParams.outputGain;
-      double dry = x;  // original input (post input gain)
-      outputs[c][s] = mParams.mix * wet + (1.0 - mParams.mix) * dry;
+    for (int c = 0; c < nChans; c++) {
+      outputs[c][s] = inputs[c][s] * gain;
     }
   }
 }
