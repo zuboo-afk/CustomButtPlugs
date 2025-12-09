@@ -17,7 +17,7 @@ SubPlug::SubPlug(const InstanceInfo& info)
   GetParam(kMix)->InitDouble("Mix", 1.0, 0.0, 1.0, 0.01);
   
   // Initialize delay line (will be resized in OnReset)
-  mDelayLine.resize(kMaxDelay);
+  // mDelayLine.resize(kMaxDelay);
 
 #if IPLUG_EDITOR // http://bit.ly/2S64BDd
   mMakeGraphicsFunc = [&]() {
@@ -179,4 +179,3 @@ sample SubPlug::ApplyWaveShaper(sample x)
   // return std::max(-0.7f, std::min(0.7f, x));
 }
 #endif
-};

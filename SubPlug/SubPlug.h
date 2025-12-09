@@ -7,6 +7,10 @@ const int kNumPresets = 1;
 enum EParams
 {
   kParamGain = 0,
+  kSubOctave,
+  kPhaseShift,
+  kDrive,
+  kMix,
   kNumParams
 };
 
@@ -34,15 +38,6 @@ public:
   void ProcessBlock(sample** inputs, sample** outputs, int nFrames) override;
   void OnReset() override;
   void OnParamChange(int paramIdx) override;
-  
-private:
-  enum EParams {
-    kSubOctave,
-    kPhaseShift,
-    kDrive,
-    kMix,
-    kNumParams
-  };
   
   static constexpr int kMaxDelay = 441; // ~10ms at 44.1kHz
   
